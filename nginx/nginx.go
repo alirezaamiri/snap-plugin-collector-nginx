@@ -19,10 +19,10 @@ package nginx
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"encoding/json"
+	//"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	//"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -30,7 +30,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
+	"bufio"
 	"github.com/intelsdi-x/snap-plugin-lib-go/v1/plugin"
 )
 
@@ -204,7 +204,7 @@ func getMetrics(nginxServer string, metrics []string) (mList []plugin.Metric, er
 		return nil, errorRequestFail
 	}
 
-	body, err2 := ioutil.ReadAll(resp.Body)
+	/*body, err2 := ioutil.ReadAll(resp.Body)
 	if err2 != nil {
 		return nil, err2
 	}
@@ -213,16 +213,75 @@ func getMetrics(nginxServer string, metrics []string) (mList []plugin.Metric, er
 	err = json.Unmarshal(body, &jFmt)
 	if err != nil {
 		return nil, err
-	}
+	}*/
+	
+
+	r := bufio.NewReader(resp.Body)
+	_, err = r.ReadString(':')
+        if err != nil {
+                return nil, err
+        }
+        line, err3 := r.ReadString('\n')
+        if err3 != nil {
+                return nil, err3
+        }
+        active, err4 := strconv.ParseUint(strings.TrimSpace(line), 10, 64)
+        if err4 != nil {
+                return nil, err4
+        }
+
+
+	// Server accepts handled requests
+        _, err = r.ReadString('\n')
+        if err != nil {
+                return nil, err
+        }
+        line, err = r.ReadString('\n')
+        if err != nil {
+                return nil, err
+        }
+        data := strings.Fields(line)
+        accepts, err5 := strconv.ParseUint(data[0], 10, 64)
+        if err5 != nil {
+                return nil, err5
+        }
+
+        handled, err6 := strconv.ParseUint(data[1], 10, 64)
+        if err6 != nil {
+                return nil, err6
+        }
+        requests, err7 := strconv.ParseUint(data[2], 10, 64)
+        if err7 != nil {
+                return nil, err
+        }
+
+        // Reading/Writing/Waiting
+        line, err = r.ReadString('\n')
+        if err != nil {
+                return nil, err
+        }
+        data = strings.Fields(line)
+        reading, err8 := strconv.ParseUint(data[1], 10, 64)
+        if err8 != nil {
+                return nil, err8
+        }
+        writing, err9 := strconv.ParseUint(data[3], 10, 64)
+        if err9 != nil {
+                return nil, err9
+        }
+        waiting, err10 := strconv.ParseUint(data[5], 10, 64)
+        if err10 != nil {
+                return nil, err10
+        }
 	
 	fields := map[string]interface{}{
-                "active":   1,
-                "accepts":  1,
-                "handled":  1,
-                "requests": 1,
-                "reading":  1,
-                "writing":  1,
-                "waiting":  1,
+                "active":   int(active),
+                "accepts":  int(accepts),
+                "handled":  int(handled),
+                "requests": int(requests),
+                "reading":  int(reading),
+                "writing":  int(writing),
+                "waiting":  int(waiting),
         }
 	pk := "staples" + "/" + "nginx"
 	parseMetrics(&mList, fields, pk)
