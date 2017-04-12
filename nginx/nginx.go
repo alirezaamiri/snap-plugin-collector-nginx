@@ -283,7 +283,7 @@ func getMetrics(nginxServer string, metrics []string) (mList []plugin.Metric, er
                 "writing":  int(writing),
                 "waiting":  int(waiting),
         }
-	pk := "staples" + "/" + "nginx"
+	pk := "gwdg" + "/" + "nginx"
 	parseMetrics(&mList, fields, pk)
 
 	return mList, nil
