@@ -4,7 +4,7 @@
             "collector": {
                 "nginx": {
                     "all": {
-                        "nginx_server_url": "http://localhost/status"
+                        "nginx_server_url": "http://127.0.0.1/nginx_status"
                     }
                 }
             }

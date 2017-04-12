@@ -214,9 +214,18 @@ func getMetrics(nginxServer string, metrics []string) (mList []plugin.Metric, er
 	if err != nil {
 		return nil, err
 	}
-
+	
+	fields := map[string]interface{}{
+                "active":   1,
+                "accepts":  1,
+                "handled":  1,
+                "requests": 1,
+                "reading":  1,
+                "writing":  1,
+                "waiting":  1,
+        }
 	pk := "staples" + "/" + "nginx"
-	parseMetrics(&mList, jFmt, pk)
+	parseMetrics(&mList, fields, pk)
 
 	return mList, nil
 }
@@ -266,7 +275,8 @@ func (NginxCollector) GetConfigPolicy() (plugin.ConfigPolicy, error) {
 func getConfigURL(config plugin.Config) (string, error) {
 	nginxServerURL, err := config.GetString(configServerURL)
 	if err == plugin.ErrConfigNotFound {
-		return "http://localhost/status", nil
+		return "http://127.0.0.1/nginx_status", nil
+
 	}
 	return nginxServerURL, err
 }
