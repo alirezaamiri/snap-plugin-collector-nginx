@@ -17,7 +17,7 @@ limitations under the License.
 package main
 
 import (
-	"github.com/Staples-Inc/snap-plugin-collector-nginx/nginx"
+	"github.com/gwdg/snap-plugin-collector-nginx/nginx"
 	"github.com/intelsdi-x/snap-plugin-lib-go/v1/plugin"
 )
 
