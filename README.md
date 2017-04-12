@@ -11,5 +11,5 @@ https://mathias-kettner.de/checkmk_check_nginx_status.html
 If you got error for not having some libraries, run following command in the repo folder:
 
 ``` 
-  go get ./...
+  $ go get ./...
 ```
